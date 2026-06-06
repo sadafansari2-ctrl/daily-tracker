@@ -1099,9 +1099,11 @@ function buildGrid(k,dd){
       b.innerHTML='<div class="pico">'+ico+'</div><div class="pnm">'+p+'</div><div class="pdot"></div>';
       b.onclick=function(){
         data[k]=data[k]||{};
-        data[k][pid]=!data[k][pid];
-        if(!data[k][pid])delete data[k][pid];
-        b.classList.toggle('done',!!data[k][pid]);
+        var cur=data[k][pid];
+        if(cur===undefined||cur===null){data[k][pid]=true;}
+        else if(cur===true){data[k][pid]=false;}
+        else if(cur===false){delete data[k][pid];}
+        b.classList.toggle('done',data[k][pid]===true);
         var ncEl=document.getElementById('nc-'+k);
         if(ncEl)ncEl.textContent=nmCnt(k)+'/5 read';
         sd(data);upd(k);
@@ -1236,7 +1238,7 @@ function buildGrid(k,dd){
         var cur=data[k][h.id];
         if(cur===undefined||cur===null){data[k][h.id]=true;}
         else if(cur===true){data[k][h.id]=false;}
-        else{delete data[k][h.id];}
+        else if(cur===false){delete data[k][h.id];}
         var ns=data[k][h.id];
         b.className='hbtn'+(ns===true?' '+h.dc:ns===false?' no':'');
         var mk=b.querySelector('.hmark');if(mk)mk.textContent=ns===true?'\u2713':ns===false?'\u2715':'';
@@ -1955,6 +1957,17 @@ window.addEventListener('online',function(){if(fbFs&&fbUser){setSyncStatus('sync
 window.addEventListener('offline',function(){setSyncStatus('orange','Offline - Saved locally');});
 
 function init(){
+  // Clean up old data before June 1, 2026
+  var cutoffDate='2026-06-01';
+  var keysToDelete=[];
+  for(var key in data){
+    if(key.match(/^\d{4}-\d{2}-\d{2}$/)&&key<cutoffDate){
+      keysToDelete.push(key);
+    }
+  }
+  keysToDelete.forEach(function(k){delete data[k];});
+  if(keysToDelete.length>0){try{localStorage.setItem('ht90_26',JSON.stringify(data));}catch(e){}}
+  
   var tinp=document.getElementById('todo-input'); if(tinp){tinp.addEventListener('keydown',function(e){if(e.key==='Enter')addTodo();});}
   renderTabs();renderDays();stats();renderTodos();calcStreak();updateGoal();
   setTimeout(function(){ var t=document.querySelector('.card.today'); if(t)t.scrollIntoView({behavior:'smooth',block:'center'}); },200);
