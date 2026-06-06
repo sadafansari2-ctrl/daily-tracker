@@ -1957,17 +1957,6 @@ window.addEventListener('online',function(){if(fbFs&&fbUser){setSyncStatus('sync
 window.addEventListener('offline',function(){setSyncStatus('orange','Offline - Saved locally');});
 
 function init(){
-  // Clean up old data before June 1, 2026
-  var cutoffDate='2026-06-01';
-  var keysToDelete=[];
-  for(var key in data){
-    if(key.match(/^\d{4}-\d{2}-\d{2}$/)&&key<cutoffDate){
-      keysToDelete.push(key);
-    }
-  }
-  keysToDelete.forEach(function(k){delete data[k];});
-  if(keysToDelete.length>0){try{localStorage.setItem('ht90_26',JSON.stringify(data));}catch(e){}}
-  
   var tinp=document.getElementById('todo-input'); if(tinp){tinp.addEventListener('keydown',function(e){if(e.key==='Enter')addTodo();});}
   renderTabs();renderDays();stats();renderTodos();calcStreak();updateGoal();
   setTimeout(function(){ var t=document.querySelector('.card.today'); if(t)t.scrollIntoView({behavior:'smooth',block:'center'}); },200);
