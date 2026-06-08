@@ -1040,6 +1040,14 @@ function buildGrid(k,dd){
       updateWeight();
     }
   };
+  wi.addEventListener('keydown',function(e){
+    if(e.key==='Enter'||e.keyCode===13){
+      e.preventDefault();
+      updateWeight();
+      wi.blur();
+    }
+  });
+  wi.addEventListener('blur',updateWeight);
   inpRow.appendChild(wt);
 
   var ct=document.createElement('div');
@@ -1064,6 +1072,14 @@ function buildGrid(k,dd){
       updateKcal();
     }
   };
+  ci.addEventListener('keydown',function(e){
+    if(e.key==='Enter'||e.keyCode===13){
+      e.preventDefault();
+      updateKcal();
+      ci.blur();
+    }
+  });
+  ci.addEventListener('blur',updateKcal);
   inpRow.appendChild(ct);
 
   var wut=document.createElement('div');
@@ -1858,22 +1874,20 @@ function initFirebase(){
     setSyncStatus('syncing','Checking login...');
     
     // Set persistence to LOCAL (remembers login across sessions)
-    fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).then(function(){
-      console.log('Firebase persistence set to LOCAL');
-      // Check if user was already logged in
-      fbAuth.onAuthStateChanged(function(user){
-        console.log('Auth state changed:', user ? user.email : 'signed out');
-        if(user){ 
-          fbUser=user; 
-          onSignedIn(user); 
-        } else { 
-          fbUser=null; 
-          onSignedOut(); 
-        }
-      });
-    }).catch(function(err){
+    fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(function(err){
       console.error('Persistence error:', err);
-      setSyncStatus('orange','Login will not persist');
+    });
+    
+    // Check if user was already logged in (MUST be outside setPersistence)
+    fbAuth.onAuthStateChanged(function(user){
+      console.log('Auth state changed:', user ? user.email : 'signed out');
+      if(user){ 
+        fbUser=user; 
+        onSignedIn(user); 
+      } else { 
+        fbUser=null; 
+        onSignedOut(); 
+      }
     });
   }catch(e){setSyncStatus('red','Config error'); console.log(e);}
 }
